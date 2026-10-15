@@ -1,0 +1,19 @@
+{
+  "name": "smart-classroom-attendance",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Smart Classroom & Attendance Analytics Portal — MERN stack app with camera-based attendance.",
+  "scripts": {
+    "install:all": "npm install && npm install --prefix client && npm install --prefix server",
+    "dev": "concurrently -n CLIENT,SERVER -c cyan,green \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "dev:client": "npm run dev --prefix client",
+    "dev:server": "npm run dev --prefix server",
+    "build": "npm run build --prefix client",
+    "create-admin": "node server/scripts/createAdmin.js",
+    "seed": "npm run seed --prefix server",
+    "test:server": "npm test --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}

@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Emerald Green System — ClassVision AI */
+:root {
+  --accent: #059669;              /* light mode */
+  --accent-strong: #047857;       /* light mode */
+  --accent-soft: rgba(5, 150, 105, 0.10);   /* light */
+  --accent-glow: rgba(5, 150, 105, 0.28);   /* light */
+  --brand-gradient: linear-gradient(135deg, #10B981, #059669);
+}
+
+.dark {
+  --accent: #10B981;              /* dark mode  */
+  --accent-strong: #059669;       /* dark mode  */
+  --accent-soft: rgba(16, 185, 129, 0.16);  /* dark  */
+  --accent-glow: rgba(16, 185, 129, 0.40);  /* dark  */
+  --brand-gradient: linear-gradient(135deg, #34D399, #10B981);
+}
+
+@layer base {
+  html {
+    @apply font-body text-ink antialiased selection:bg-emerald-100 selection:text-emerald-900 scroll-smooth;
+  }
+  body {
+    @apply bg-canvas m-0 min-h-screen text-ink overflow-x-hidden;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight text-ink font-bold;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-emerald-800/20 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-emerald-800/40;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#059669] to-[#047857] px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:from-[#047857] hover:to-[#065F46] hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-surface px-4 py-2.5 text-xs sm:text-sm font-semibold text-ink shadow-2xs transition-all duration-200 hover:bg-[#F0FDF4] hover:border-emerald-200 hover:shadow-xs hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:from-[#059669] hover:to-[#047857] hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-muted transition-all hover:bg-emerald-50 hover:text-emerald-900;
+  }
+  .card {
+    @apply rounded-[20px] border border-line bg-surface shadow-card transition-all duration-200;
+  }
+  .card-hover {
+    @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-card-hover;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+  .input-field {
+    @apply w-full rounded-xl border border-line bg-[#FAFCFA] px-3.5 py-2.5 text-xs sm:text-sm text-ink placeholder-muted/60 transition-all focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20;
+  }
+  .glass-card {
+    @apply rounded-[22px] border border-white/60 bg-white/80 backdrop-blur-xl shadow-glass;
+  }
+}

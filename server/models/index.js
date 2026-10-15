@@ -1,0 +1,17 @@
+// Barrel export so seed scripts and controllers can do:
+//   import { User, Student, Attendance } from '../models/index.js'
+// instead of one import line per model.
+export { default as User } from './User.js'
+export { default as Student } from './Student.js'
+export { default as Teacher } from './Teacher.js'
+export { default as Admin } from './Admin.js'
+export { default as Course } from './Course.js'
+export { default as Subject } from './Subject.js'
+export { default as Classroom } from './Classroom.js'
+export { default as Timetable } from './Timetable.js'
+export { default as Attendance } from './Attendance.js'
+export { default as AttendanceSession } from './AttendanceSession.js'
+export { default as FaceProfile } from './FaceProfile.js'
+export { default as Notification } from './Notification.js'
+export { default as Announcement } from './Announcement.js'
+export { default as ODLeaveRequest } from './ODLeaveRequest.js'
