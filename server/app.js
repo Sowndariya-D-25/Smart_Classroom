@@ -14,6 +14,9 @@ import { notFound, errorHandler } from './middleware/errorHandler.js'
 
 const app = express()
 
+// Trust first proxy hop (e.g. Render, reverse proxy) for rate limiting & IP extraction
+app.set('trust proxy', 1)
+
 // --- Core security & middleware ---
 app.use(
   helmet({
@@ -21,9 +24,11 @@ app.use(
   }),
 )
 
-const configuredOrigins = (process.env.ALLOWED_ORIGINS || process.env.CLIENT_URL || '')
-  .split(',')
-  .map((s) => s.trim())
+const configuredOrigins = [
+  ...(process.env.ALLOWED_ORIGINS || '').split(','),
+  ...(process.env.CLIENT_URL || '').split(','),
+]
+  .map((s) => s.trim().replace(/\/+$/, ''))
   .filter(Boolean)
 
 const defaultDevOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173']

@@ -31,7 +31,7 @@ export const connectDB = async () => {
     // Fail fast if MongoDB isn't reachable instead of hanging for the
     // driver's default 30s — the server should still come up so the
     // frontend can show a clear "database not connected" state.
-    await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 })
+    await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000 })
   } catch (err) {
     isConnected = false
     console.error('Failed to connect to MongoDB:', err.message)

@@ -3,7 +3,7 @@ import axios from 'axios'
 // Central Axios instance. All frontend API calls should go through this
 // so that auth headers, base URL, and error handling stay in one place.
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/+$/, ''),
   headers: {
     'Content-Type': 'application/json',
   },
