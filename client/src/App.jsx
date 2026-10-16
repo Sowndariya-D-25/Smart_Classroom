@@ -10,6 +10,7 @@ import LoadingScreen from './components/LoadingScreen'
 
 import Landing from './pages/Landing'
 import Login from './pages/Login'
+import AdminSetup from './pages/AdminSetup'
 import ComingSoon from './pages/ComingSoon'
 import NotFound from './pages/NotFound'
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -63,6 +64,8 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Navigate to="/login" replace />} />
+          <Route path="/admin-setup" element={<AdminSetup />} />
+          <Route path="/setup" element={<Navigate to="/admin-setup" replace />} />
 
           {/* Authenticated */}
           <Route element={<ProtectedRoute />}>

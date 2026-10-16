@@ -1,12 +1,14 @@
 import { Router } from 'express'
-import { register, login, getMe, logout } from '../controllers/auth.controller.js'
-import { registerValidator, loginValidator } from '../validators/auth.validator.js'
+import { register, login, getMe, logout, getSetupStatus, setupAdmin } from '../controllers/auth.controller.js'
+import { registerValidator, loginValidator, adminSetupValidator } from '../validators/auth.validator.js'
 import { protect } from '../middleware/auth.middleware.js'
 import { authorizeRoles } from '../middleware/role.middleware.js'
 import { loginLimiter, registerLimiter } from '../middleware/rateLimiter.js'
 
 const router = Router()
 
+router.get('/setup/status', getSetupStatus)
+router.post('/setup', registerLimiter, adminSetupValidator, setupAdmin)
 router.post('/register', registerLimiter, registerValidator, register)
 router.post('/login', loginLimiter, loginValidator, login)
 router.get('/me', protect, getMe)

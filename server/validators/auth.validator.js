@@ -58,3 +58,41 @@ export const loginValidator = [
   body('password').notEmpty().withMessage('Password is required'),
   validate,
 ]
+
+export const adminSetupValidator = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('Name is required')
+    .isLength({ max: 100 })
+    .withMessage('Name cannot exceed 100 characters'),
+  body('email')
+    .trim()
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+  passwordRules,
+  body('confirmPassword')
+    .notEmpty()
+    .withMessage('Please confirm your password')
+    .custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error('Passwords do not match')
+      }
+      return true
+    }),
+  body('setupKey')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('Setup key is required'),
+  body('department')
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Department name cannot exceed 100 characters'),
+  validate,
+]
+

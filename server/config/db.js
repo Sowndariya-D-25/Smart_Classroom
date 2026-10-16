@@ -5,7 +5,7 @@ import mongoose from 'mongoose'
 let isConnected = false
 
 export const connectDB = async () => {
-  const uri = process.env.MONGO_URI
+  const uri = process.env.MONGO_URI || process.env.MONGODB_URI
 
   if (!uri) {
     console.error('MONGO_URI is not set. Add it to server/.env (see .env.example).')

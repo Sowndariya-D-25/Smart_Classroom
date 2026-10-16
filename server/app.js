@@ -34,19 +34,47 @@ const configuredOrigins = [
 const defaultDevOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173']
 const allowedOrigins = Array.from(new Set([...defaultDevOrigins, ...configuredOrigins]))
 
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true
+  const cleanOrigin = origin.trim().replace(/\/+$/, '')
+
+  // Match explicitly configured origins (case-insensitive)
+  if (allowedOrigins.some((o) => o.toLowerCase() === cleanOrigin.toLowerCase())) {
+    return true
+  }
+
+  // Automatically allow all valid Vercel deployment domains (production, preview, branch)
+  try {
+    const parsed = new URL(cleanOrigin)
+    if (
+      parsed.protocol === 'https:' &&
+      (parsed.hostname === 'vercel.app' || parsed.hostname.endsWith('.vercel.app'))
+    ) {
+      return true
+    }
+  } catch {
+    // Malformed origin
+  }
+
+  // Allow localhost in non-production environments
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(cleanOrigin)
+  ) {
+    return true
+  }
+
+  return false
+}
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, server-to-server)
-      if (!origin) return callback(null, true)
-      if (allowedOrigins.includes(origin)) return callback(null, true)
-      if (
-        process.env.NODE_ENV !== 'production' &&
-        /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
-      ) {
+      if (isAllowedOrigin(origin)) {
         return callback(null, true)
       }
-      return callback(new Error('Not allowed by CORS'))
+      console.warn(`[CORS] Blocked request from origin: "${origin}". Add it to CLIENT_URL or ALLOWED_ORIGINS in Render.`)
+      return callback(null, false)
     },
     credentials: true,
   }),

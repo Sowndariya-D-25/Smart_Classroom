@@ -1,3 +1,5 @@
+import crypto from 'crypto'
+import mongoose from 'mongoose'
 import asyncHandler from '../utils/asyncHandler.js'
 import generateToken from '../utils/generateToken.js'
 import sanitizeUser from '../utils/formatUser.js'
@@ -103,3 +105,124 @@ export const logout = asyncHandler(async (req, res) => {
     message: 'Logged out successfully',
   })
 })
+
+// GET /api/auth/setup/status
+export const getSetupStatus = asyncHandler(async (req, res) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(200).json({
+      success: true,
+      message: 'Database connection is not ready. Please verify your MongoDB configuration in Render.',
+      data: {
+        setupAvailable: false,
+        adminExists: null,
+        hasSetupKey: Boolean(process.env.ADMIN_SETUP_KEY?.trim()),
+        dbConnected: false,
+        message: 'Database connection is not ready. Please verify your MongoDB configuration in Render and MongoDB Atlas network access.',
+      },
+    })
+  }
+
+  const serverSetupKey = process.env.ADMIN_SETUP_KEY?.trim()
+  const hasSetupKey = Boolean(serverSetupKey)
+
+  const adminUserExists = await User.exists({ role: 'admin' })
+  const adminProfileExists = await Admin.exists({})
+  const adminExists = Boolean(adminUserExists || adminProfileExists)
+
+  const setupAvailable = hasSetupKey && !adminExists
+
+  let message = 'Admin setup is available.'
+  if (!hasSetupKey) {
+    message = 'ADMIN_SETUP_KEY is not configured on the server. Admin setup is disabled.'
+  } else if (adminExists) {
+    message = 'An administrator account already exists. Admin setup is locked.'
+  }
+
+  res.status(200).json({
+    success: true,
+    data: {
+      setupAvailable,
+      adminExists,
+      hasSetupKey,
+      dbConnected: true,
+      message,
+    },
+  })
+})
+
+// POST /api/auth/setup
+export const setupAdmin = asyncHandler(async (req, res) => {
+  if (mongoose.connection.readyState !== 1) {
+    res.status(503)
+    throw new Error('Database connection is not ready. Please verify your MongoDB configuration.')
+  }
+
+  const serverSetupKey = process.env.ADMIN_SETUP_KEY?.trim()
+  if (!serverSetupKey) {
+    res.status(503)
+    throw new Error('Admin setup is disabled. ADMIN_SETUP_KEY is not configured on the server.')
+  }
+
+  const { name, email, password, setupKey, department } = req.body
+
+  const clientKey = String(setupKey || '').trim()
+  const keyBuf = Buffer.from(clientKey)
+  const serverBuf = Buffer.from(serverSetupKey)
+
+  if (keyBuf.length !== serverBuf.length || !crypto.timingSafeEqual(keyBuf, serverBuf)) {
+    res.status(403)
+    throw new Error('Invalid admin setup key.')
+  }
+
+  const existingAdminUser = await User.exists({ role: 'admin' })
+  const existingAdminProfile = await Admin.exists({})
+  if (existingAdminUser || existingAdminProfile) {
+    res.status(409)
+    throw new Error('An administrator account already exists. Admin registration is closed.')
+  }
+
+  const cleanEmail = email ? String(email).trim().toLowerCase() : ''
+  const existingUser = await User.findOne({ email: cleanEmail })
+  if (existingUser) {
+    res.status(409)
+    throw new Error('An account with this email already exists.')
+  }
+
+  let user
+  try {
+    // User.pre('save') handles bcrypt hashing automatically
+    user = await User.create({
+      name: name ? String(name).trim() : 'Administrator',
+      email: cleanEmail,
+      password,
+      role: 'admin',
+    })
+
+    let employeeId = 'ADM-001'
+    const existingEmp = await Admin.findOne({ employeeId })
+    if (existingEmp) {
+      const count = await Admin.countDocuments()
+      employeeId = `ADM-${String(count + 1).padStart(3, '0')}`
+    }
+
+    await Admin.create({
+      user: user._id,
+      employeeId,
+      department: department && String(department).trim() ? String(department).trim() : 'CSE',
+    })
+  } catch (err) {
+    if (user && user._id) {
+      await User.findByIdAndDelete(user._id).catch(() => {})
+    }
+    throw err
+  }
+
+  res.status(201).json({
+    success: true,
+    message: 'Administrator account created successfully. You can now log in.',
+    data: {
+      user: sanitizeUser(user),
+    },
+  })
+})
+

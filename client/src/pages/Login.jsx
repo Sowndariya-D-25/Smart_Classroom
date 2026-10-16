@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { FiEye, FiEyeOff, FiArrowLeft, FiLoader } from 'react-icons/fi'
+import { FiEye, FiEyeOff, FiArrowLeft, FiLoader, FiShield, FiCheckCircle } from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext'
 import { inputClass } from '../components/FormField'
 import FormField from '../components/FormField'
@@ -16,10 +16,18 @@ export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const [form, setForm] = useState({ email: '', password: '' })
+  const [form, setForm] = useState({
+    email: location.state?.email || '',
+    password: '',
+  })
   const [showPassword, setShowPassword] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(
+    location.state?.setupSuccess
+      ? 'Administrator account created successfully! Please sign in below.'
+      : null,
+  )
 
   // If already authenticated, redirect straight to their role home
   useEffect(() => {
@@ -40,9 +48,10 @@ export default function Login() {
       const loggedUser = await login(form)
       const redirectTo = location.state?.from?.pathname || ROLE_HOME[loggedUser.role] || '/'
       navigate(redirectTo, { replace: true })
-    } catch (err) {
       if (!err.response) {
-        setError('Unable to connect to the server. Please check your network connection.')
+        setError(
+          'Unable to reach the backend server. If on Render free tier, the instance may be waking from sleep (~30–60s). Please wait a moment and try again.',
+        )
       } else if (err.response.status === 401) {
         setError(err.response.data?.message || 'Invalid email or password.')
       } else if (err.response.status === 403) {
@@ -159,6 +168,13 @@ export default function Login() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {successMessage && (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50/90 p-3.5 text-xs font-semibold text-emerald-800 flex items-center gap-2 animate-in fade-in">
+                <FiCheckCircle size={16} className="text-emerald-600 shrink-0" />
+                <span>{successMessage}</span>
+              </div>
+            )}
+
             {error && (
               <div className="rounded-2xl border border-rose-200 bg-rose-50/80 p-3.5 text-xs font-semibold text-rose-700 animate-in fade-in">
                 {error}
@@ -216,6 +232,16 @@ export default function Login() {
           <p className="mt-8 text-center text-xs text-muted">
             Institutional access only. Contact your academic administrator for account provisioning.
           </p>
+
+          <div className="mt-4 pt-4 border-t border-line/60 text-center">
+            <Link
+              to="/admin-setup"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#52796F] hover:text-emerald-700 hover:underline transition"
+            >
+              <FiShield size={13} />
+              <span>First-time setup? Initialize Admin Account</span>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

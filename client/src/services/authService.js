@@ -36,3 +36,14 @@ export async function logout() {
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY)
 }
+
+export async function getAdminSetupStatus() {
+  const res = await api.get('/auth/setup/status')
+  return res.data?.data || res.data
+}
+
+export async function setupAdmin(payload) {
+  const res = await api.post('/auth/setup', payload)
+  return res.data
+}
+
